@@ -210,11 +210,15 @@ cp .env.example .env
 ```
 Edit `.env` with your real database connection string and Firebase configuration.
 
-### 4. Database Schema Sync
-Generate Prisma client and sync schema to PostgreSQL:
+### 4. Database Schema Sync & Initial Setup
+Sync the schema to your PostgreSQL database and seed initial test users in one single command:
 ```bash
-npx prisma generate
-npx prisma db push
+npm run db:setup
+```
+*(Or execute step-by-step)*:
+```bash
+npm run db:push     # Pushes Prisma schema to PostgreSQL (creates users, chats, chat_members tables)
+npm run db:seed     # Pre-populates 3 test users (Alice, Bob, Charlie)
 ```
 
 ### 5. Firebase Credentials Setup
@@ -223,6 +227,29 @@ Place your Firebase Admin SDK service account key JSON at:
 credentials/serviceAccountKey.json
 ```
 *(Note: `credentials/` is strictly ignored by `.gitignore` to prevent credential exposure).*
+
+### 6. User Provisioning & Database Seeding
+To start testing chat APIs, users must exist in PostgreSQL. You have 3 straightforward options:
+
+- **Option A: One-Click Seed Script (Recommended for Reviewers)**:
+  Run the pre-configured seed script to automatically wipe test data and seed 3 fresh users (Alice, Bob, and Charlie):
+  ```bash
+  npm run db:seed
+  # or
+  npm run db:reset
+  ```
+  The script will output their exact generated UUIDs directly in the terminal for copy-pasting.
+
+- **Option B: Create Users via REST API**:
+  Use the built-in user creation API endpoint:
+  ```bash
+  curl -X POST http://localhost:5000/user/create \
+    -H "Content-Type: application/json" \
+    -d '{"name": "Alice Sharma", "email": "alice@example.com"}'
+  ```
+
+- **Option C: Automated End-to-End Suite**:
+  Run `npm run test:e2e` which automatically creates isolated test users, executes all 14 assertions, and validates the entire workflow.
 
 ---
 
@@ -314,6 +341,44 @@ All error responses follow the standard error envelope:
     "message": "Human readable error description",
     "details": [ ... ]
   }
+}
+```
+
+---
+
+### 0. Create User (User Provisioning Endpoint)
+
+Creates a new user record in PostgreSQL to participate in chat conversations.
+
+- **URL**: `POST /user/create` (or `POST /api/user/create`)
+- **Headers**: `Content-Type: application/json`
+- **Request Body**:
+```json
+{
+  "name": "Alice Sharma",
+  "email": "alice@example.com"
+}
+```
+
+#### Executable cURL:
+```bash
+curl -X POST http://localhost:5000/user/create \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alice Sharma", "email": "alice@example.com"}'
+```
+
+#### Success Response (`201 Created`):
+```json
+{
+  "success": true,
+  "data": {
+    "id": "524bc214-8d73-4086-bf08-b0ece4a5a3ce",
+    "name": "Alice Sharma",
+    "email": "alice@example.com",
+    "createdAt": "2026-11-24T05:25:00.000Z",
+    "updatedAt": "2026-11-24T05:25:00.000Z"
+  },
+  "message": "User created successfully"
 }
 ```
 

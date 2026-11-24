@@ -14,13 +14,13 @@
     },
     {
       "key": "userAId",
-      "value": "11cf9ae0-fd32-47b4-950e-08bdd110c67a",
+      "value": "524bc214-8d73-4086-bf08-b0ece4a5a3ce",
       "type": "string",
       "description": "UUID of User A (e.g. Alice)"
     },
     {
       "key": "userBId",
-      "value": "3d01b685-f3e3-447d-8e7d-09bb53ce5f48",
+      "value": "6c3eeaa1-e952-4641-8f76-28771f2ef0ad",
       "type": "string",
       "description": "UUID of User B (e.g. Bob)"
     },
@@ -103,7 +103,75 @@
       ]
     },
     {
-      "name": "1. Create or Get 1-to-1 Chat",
+      "name": "1. Create User (Utility)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"User created with valid ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.id).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Alice Sharma\",\n  \"email\": \"alice@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "create"
+          ]
+        },
+        "description": "Utility endpoint to create a fresh user in PostgreSQL. Returns userId to use in chat creation."
+      },
+      "response": [
+        {
+          "name": "201 Created - User Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Alice Sharma\",\n  \"email\": \"alice@example.com\"\n}" },
+            "url": { "raw": "{{baseUrl}}/user/create", "host": ["{{baseUrl}}"], "path": ["user", "create"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"524bc214-8d73-4086-bf08-b0ece4a5a3ce\",\n    \"name\": \"Alice Sharma\",\n    \"email\": \"alice@example.com\",\n    \"createdAt\": \"2026-11-24T06:30:00.000Z\",\n    \"updatedAt\": \"2026-11-24T06:30:00.000Z\"\n  },\n  \"message\": \"User created successfully\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Create or Get 1-to-1 Chat",
       "event": [
         {
           "listen": "test",
@@ -175,7 +243,7 @@
       ]
     },
     {
-      "name": "2. Send Message",
+      "name": "3. Send Message",
       "event": [
         {
           "listen": "test",
@@ -249,7 +317,7 @@
       ]
     },
     {
-      "name": "3. Get Messages (with Pagination)",
+      "name": "4. Get Messages (with Pagination)",
       "event": [
         {
           "listen": "test",
@@ -326,7 +394,7 @@
       ]
     },
     {
-      "name": "4. Mark Message as Read",
+      "name": "5. Mark Message as Read",
       "event": [
         {
           "listen": "test",
@@ -397,7 +465,7 @@
       ]
     },
     {
-      "name": "5. Update Last Seen Pointer",
+      "name": "6. Update Last Seen Pointer",
       "event": [
         {
           "listen": "test",
@@ -466,7 +534,7 @@
       ]
     },
     {
-      "name": "6. Get User Chats",
+      "name": "7. Get User Chats",
       "event": [
         {
           "listen": "test",

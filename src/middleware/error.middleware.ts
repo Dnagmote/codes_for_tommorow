@@ -68,6 +68,26 @@ export function errorMiddleware(
         );
         return;
       }
+      case 'P2021': {
+        ApiResponse.error(
+          res,
+          HTTP_STATUS.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.INTERNAL_SERVER_ERROR,
+          'Database table does not exist. Please run "npm run db:push" or "npm run db:setup" to sync the schema.',
+          err.meta
+        );
+        return;
+      }
+      case 'P1001': {
+        ApiResponse.error(
+          res,
+          503,
+          'SERVICE_UNAVAILABLE',
+          'Database connection timeout. The cloud database may be resuming from sleep; please retry.',
+          err.meta
+        );
+        return;
+      }
       default:
         ApiResponse.error(
           res,
