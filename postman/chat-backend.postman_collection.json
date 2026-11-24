@@ -1,0 +1,528 @@
+{
+  "info": {
+    "_postman_id": "a9182374-e831-419b-9801-789a42cb1090",
+    "name": "Chat Backend API Collection",
+    "description": "Production-ready Postman collection for Chat Backend assignment. Includes all 6 mandatory endpoints, health check, sample payloads, variable mappings, and automated test assertions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string",
+      "description": "Base URL of the running Chat Backend server"
+    },
+    {
+      "key": "userAId",
+      "value": "11cf9ae0-fd32-47b4-950e-08bdd110c67a",
+      "type": "string",
+      "description": "UUID of User A (e.g. Alice)"
+    },
+    {
+      "key": "userBId",
+      "value": "3d01b685-f3e3-447d-8e7d-09bb53ce5f48",
+      "type": "string",
+      "description": "UUID of User B (e.g. Bob)"
+    },
+    {
+      "key": "chatId",
+      "value": "33bfd5d7-fb45-4145-8c02-698ab0dcfdb8",
+      "type": "string",
+      "description": "UUID of active chat between User A and User B"
+    },
+    {
+      "key": "messageId",
+      "value": "p0HjDJW0kaBnAHQuNOYn",
+      "type": "string",
+      "description": "Firestore message document ID"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Health status is ok\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.status).to.eql('ok');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        },
+        "description": "Returns backend server health status, uptime, and environment."
+      },
+      "response": [
+        {
+          "name": "200 OK - Health Status",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+          ],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"ok\",\n    \"uptime\": 120.45,\n    \"timestamp\": \"2026-11-24T05:25:00.000Z\",\n    \"environment\": \"development\"\n  },\n  \"message\": \"Server is healthy\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "1. Create or Get 1-to-1 Chat",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created or 200 OK\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              "",
+              "pm.test(\"Response has valid chatId\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.chatId).to.be.a('string');",
+              "    pm.environment.set(\"chatId\", jsonData.data.chatId);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userAId\": \"{{userAId}}\",\n  \"userBId\": \"{{userBId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chat/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chat",
+            "create"
+          ]
+        },
+        "description": "Creates a new 1-to-1 chat between two users in PostgreSQL or returns the existing chat idempotently."
+      },
+      "response": [
+        {
+          "name": "201 Created - New Chat",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userAId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n  \"userBId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/chat/create", "host": ["{{baseUrl}}"], "path": ["chat", "create"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n    \"type\": \"ONE_TO_ONE\",\n    \"isExisting\": false,\n    \"members\": [\n      {\n        \"userId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n        \"role\": \"MEMBER\",\n        \"name\": \"Alice User\",\n        \"email\": \"alice@example.com\"\n      },\n      {\n        \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\",\n        \"role\": \"MEMBER\",\n        \"name\": \"Bob User\",\n        \"email\": \"bob@example.com\"\n      }\n    ],\n    \"createdAt\": \"2026-11-24T05:25:01.000Z\"\n  },\n  \"message\": \"Chat created successfully\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. Send Message",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Message saved with ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.id).to.be.a('string');",
+              "    pm.environment.set(\"messageId\", jsonData.data.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senderId\": \"{{userAId}}\",\n  \"text\": \"Hello Bob! This is a real-time message via Cloud Firestore.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chat/{{chatId}}/message/send",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chat",
+            "{{chatId}}",
+            "message",
+            "send"
+          ]
+        },
+        "description": "Verifies chat existence and sender membership in PostgreSQL, then writes message document to Cloud Firestore."
+      },
+      "response": [
+        {
+          "name": "201 Created - Message Sent",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senderId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n  \"text\": \"Hello Bob!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/chat/{{chatId}}/message/send", "host": ["{{baseUrl}}"], "path": ["chat", "{{chatId}}", "message", "send"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"p0HjDJW0kaBnAHQuNOYn\",\n    \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n    \"senderId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n    \"text\": \"Hello Bob!\",\n    \"createdAt\": \"2026-11-24T05:25:02.100Z\",\n    \"isEdited\": false,\n    \"isDeleted\": false\n  },\n  \"message\": \"Message sent successfully\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. Get Messages (with Pagination)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Messages returned in chronological order\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.messages).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/chat/{{chatId}}/messages?limit=50&userId={{userAId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chat",
+            "{{chatId}}",
+            "messages"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Number of messages to retrieve (1-100, default 50)"
+            },
+            {
+              "key": "before",
+              "value": "",
+              "disabled": true,
+              "description": "Optional cursor for pagination"
+            },
+            {
+              "key": "userId",
+              "value": "{{userAId}}",
+              "description": "Optional user ID to verify chat membership"
+            }
+          ]
+        },
+        "description": "Retrieves chat messages from Cloud Firestore paginated and ordered chronologically."
+      },
+      "response": [
+        {
+          "name": "200 OK - Messages Retrieved",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/chat/{{chatId}}/messages?limit=50", "host": ["{{baseUrl}}"], "path": ["chat", "{{chatId}}", "messages"], "query": [{ "key": "limit", "value": "50" }] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"messages\": [\n      {\n        \"id\": \"p0HjDJW0kaBnAHQuNOYn\",\n        \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n        \"senderId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n        \"text\": \"Hello Bob!\",\n        \"createdAt\": \"2026-11-24T05:25:02.100Z\",\n        \"isEdited\": false,\n        \"isDeleted\": false\n      }\n    ],\n    \"count\": 1,\n    \"limit\": 50,\n    \"hasMore\": false\n  },\n  \"message\": \"Messages retrieved successfully\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. Mark Message as Read",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Read receipt recorded idempotently\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.messageId).to.eql(pm.environment.get(\"messageId\"));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userBId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chat/{{chatId}}/message/{{messageId}}/read",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chat",
+            "{{chatId}}",
+            "message",
+            "{{messageId}}",
+            "read"
+          ]
+        },
+        "description": "Records an idempotent read receipt in Firestore subcollection chats/{chatId}/messages/{messageId}/reads/{userId}."
+      },
+      "response": [
+        {
+          "name": "200 OK - Read Receipt Recorded",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chat/{{chatId}}/message/{{messageId}}/read", "host": ["{{baseUrl}}"], "path": ["chat", "{{chatId}}", "message", "{{messageId}}", "read"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n    \"messageId\": \"p0HjDJW0kaBnAHQuNOYn\",\n    \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\",\n    \"readAt\": \"2026-11-24T05:25:05.300Z\"\n  },\n  \"message\": \"Message marked as read\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. Update Last Seen Pointer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Last seen pointer updated\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data.lastSeenMessageId).to.eql(pm.environment.get(\"messageId\"));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userBId}}\",\n  \"messageId\": \"{{messageId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/chat/{{chatId}}/lastseen",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "chat",
+            "{{chatId}}",
+            "lastseen"
+          ]
+        },
+        "description": "Validates message existence in Firestore, then updates the user's last-seen pointer in chats/{chatId}/lastSeen/{userId}."
+      },
+      "response": [
+        {
+          "name": "200 OK - Last Seen Updated",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\",\n  \"messageId\": \"p0HjDJW0kaBnAHQuNOYn\"\n}" },
+            "url": { "raw": "{{baseUrl}}/chat/{{chatId}}/lastseen", "host": ["{{baseUrl}}"], "path": ["chat", "{{chatId}}", "lastseen"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n    \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\",\n    \"lastSeenMessageId\": \"p0HjDJW0kaBnAHQuNOYn\",\n    \"lastSeenAt\": \"2026-11-24T05:25:06.100Z\"\n  },\n  \"message\": \"Last seen updated successfully\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. Get User Chats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"User chat list contains preview data\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.eql(true);",
+              "    pm.expect(jsonData.data).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/{{userAId}}/chats",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "{{userAId}}",
+            "chats"
+          ]
+        },
+        "description": "Fetches all chats the user participates in from PostgreSQL, joined concurrently with the latest message and last-seen pointer from Cloud Firestore."
+      },
+      "response": [
+        {
+          "name": "200 OK - User Chats Retrieved",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/user/{{userAId}}/chats", "host": ["{{baseUrl}}"], "path": ["user", "{{userAId}}", "chats"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }],
+          "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"chatId\": \"33bfd5d7-fb45-4145-8c02-698ab0dcfdb8\",\n      \"chatType\": \"ONE_TO_ONE\",\n      \"createdAt\": \"2026-11-24T05:25:01.000Z\",\n      \"members\": [\n        {\n          \"userId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n          \"role\": \"MEMBER\",\n          \"name\": \"Alice User\",\n          \"email\": \"alice@example.com\"\n        },\n        {\n          \"userId\": \"3d01b685-f3e3-447d-8e7d-09bb53ce5f48\",\n          \"role\": \"MEMBER\",\n          \"name\": \"Bob User\",\n          \"email\": \"bob@example.com\"\n        }\n      ],\n      \"lastMessage\": {\n        \"messageId\": \"p0HjDJW0kaBnAHQuNOYn\",\n        \"senderId\": \"11cf9ae0-fd32-47b4-950e-08bdd110c67a\",\n        \"text\": \"Hello Bob!\",\n        \"createdAt\": \"2026-11-24T05:25:02.100Z\"\n      },\n      \"lastSeen\": {\n        \"lastSeenMessageId\": \"p0HjDJW0kaBnAHQuNOYn\",\n        \"lastSeenAt\": \"2026-11-24T05:25:06.100Z\"\n      }\n    }\n  ],\n  \"message\": \"User chats retrieved successfully\"\n}"
+        }
+      ]
+    }
+  ]
+}

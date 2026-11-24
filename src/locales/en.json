@@ -1,0 +1,40 @@
+{
+  "SUCCESS": {
+    "HEALTH_CHECK": "Service is healthy",
+    "CHAT_CREATED": "Chat created successfully",
+    "CHAT_RETRIEVED": "Existing chat retrieved successfully",
+    "USER_CREATED": "User processed successfully",
+    "MESSAGE_SENT": "Message sent successfully",
+    "MESSAGES_RETRIEVED": "Messages retrieved successfully",
+    "MESSAGE_READ": "Message marked as read successfully",
+    "LAST_SEEN_UPDATED": "Last seen message updated successfully",
+    "CHATS_RETRIEVED": "User chats retrieved successfully"
+  },
+  "ERROR": {
+    "SELF_CHAT": "Cannot create a chat with oneself. userAId and userBId must be distinct.",
+    "USER_NOT_FOUND": "One or both users not found",
+    "CHAT_NOT_FOUND": "Chat not found",
+    "MESSAGE_NOT_FOUND": "Message not found in this chat",
+    "UNAUTHORIZED": "Unauthorized access",
+    "NOT_A_MEMBER": "User is not a member of this chat",
+    "VALIDATION_ERROR": "Validation failed",
+    "INTERNAL_SERVER_ERROR": "An unexpected error occurred",
+    "ENDPOINT_NOT_FOUND": "Endpoint not found"
+  },
+  "VALIDATION": {
+    "USER_A_REQUIRED": "userAId is required",
+    "USER_B_REQUIRED": "userBId is required",
+    "USER_A_EMPTY": "userAId cannot be empty",
+    "USER_B_EMPTY": "userBId cannot be empty",
+    "SENDER_REQUIRED": "senderId is required",
+    "MESSAGE_TEXT_REQUIRED": "Message text cannot be empty",
+    "MESSAGE_TEXT_MAX": "Message text exceeds maximum length",
+    "NAME_REQUIRED": "name is required",
+    "NAME_EMPTY": "name cannot be empty",
+    "EMAIL_REQUIRED": "email is required",
+    "INVALID_EMAIL": "invalid email format",
+    "CHAT_ID_REQUIRED": "Invalid chat ID format",
+    "USER_ID_REQUIRED": "userId is required",
+    "MESSAGE_ID_REQUIRED": "messageId is required"
+  }
+}

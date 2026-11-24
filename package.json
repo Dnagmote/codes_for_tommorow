@@ -1,0 +1,46 @@
+{
+  "name": "chat-backend",
+  "version": "1.0.0",
+  "description": "Chat Backend with Express, TypeScript Strict, PostgreSQL/Prisma and Firebase Firestore",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:test": "ts-node src/scripts/test-db.ts",
+    "firebase:test": "ts-node src/scripts/test-firebase.ts",
+    "test:phase4": "ts-node src/scripts/test-phase4.ts",
+    "test:phase5": "ts-node src/scripts/test-phase5.ts",
+    "test:phase6": "ts-node src/scripts/test-phase6.ts",
+    "test:phase7": "ts-node src/scripts/test-phase7.ts",
+    "test:phase8": "ts-node src/scripts/test-phase8.ts",
+    "test:security": "ts-node src/scripts/test-security.ts",
+    "test:e2e": "ts-node src/scripts/run-e2e-tests.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.5",
+    "firebase-admin": "^14.5.1",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.14",
+    "prisma": "^8.0.0-rc.35",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}
